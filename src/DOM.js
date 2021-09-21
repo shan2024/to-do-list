@@ -1,44 +1,68 @@
 
+import { projectList, inbox } from "./todoList.js";
 
+function initializeSite() {
 
-function DOMSkeleton(mainBody) {
+    let body = document.querySelector("body");
+    let content = document.createElement("div");
+    content.id = "content";
+    body.appendChild(content);
+    DOMSkeleton();
+
+}
+
+function DOMSkeleton() {
 
     //create header DOM
-    let header = createHeader();
-    let body = createColumnBody();
-    let footer = createFooter();
+    createHeader();
+    createColumnBody();
+    createFooter();
 
-    mainBody.appendChild(header);
-    mainBody.appendChild(body);
-    mainBody.appendChild(footer);
+  
 
 
 }
 
 function createHeader() {
+    let content = document.querySelector("#content");
+
     let header = document.createElement("header");
     let titleElement = document.createElement("h1");
     titleElement.innerHTML = "Todo List";
     header.appendChild(titleElement);
 
-    return header;
+    content.appendChild(header);
+
 }
 
 function createColumnBody() {
-    let body = document.createElement("div");
+    let content = document.querySelector("#content");
 
-    let infoTab = createInfoTab();
-    //let mainBody = getMainBody();
+    let body = document.createElement("div");
+    body.id = "body";
+
+    //must append mainbody first
+    let infoTab = document.createElement("div");
+    infoTab.id = "info-tab";
+
+    let mainBody = document.createElement("div");
+    mainBody.id = "main-body";
 
     body.appendChild(infoTab);
-    //body.appendChild(mainBody);
+    body.appendChild(mainBody);
+    content.appendChild(body);
 
-    return body;
+    createInfoTab();
+    getInboxBody();
+
+
 }
 
 function createInfoTab() {
-    let infoTab = document.createElement("div");
-    infoTab.className = "info-tab";
+
+    let body = document.querySelector('#body');
+
+    let infoTab = document.querySelector("#info-tab");
 
     let options = ["Home", "Today", "Week"];
     options.forEach(element => {
@@ -52,7 +76,8 @@ function createInfoTab() {
     projectTitle.innerHTML = "Projects";
 
     //for projects in the localstorage, here we want to create options for them
-    let currentProjects = createCurrentProjects();
+    let currentProjects = document.createElement("div");
+    currentProjects.id = "current-projects";
 
     let addProjectButton = document.createElement("button");
     addProjectButton.innerHTML = "Add Project";
@@ -61,31 +86,99 @@ function createInfoTab() {
     infoTab.appendChild(currentProjects);
     infoTab.appendChild(addProjectButton);
 
-    return infoTab;
+    body.appendChild(infoTab);
+
+    createCurrentProjects();
+
 }
 
 function createCurrentProjects() {
     //get all current projects, then for each create an element and append oto thing
+    let currentProjects = document.getElementById("current-projects");
+    //console.log(currentProjects);
+
+    projectList.getProjectList().forEach(element => {
+        let project = document.createElement("div");
+        let name = document.createElement("p");
+        name.innerHTML = element.getProjectTitle();
+
+        let closeButton = document.createElement("button");
+        closeButton.className = "close-button";
+
+        project.appendChild(name);
+        project.appendChild(closeButton);
+        //console.log(project);
+        currentProjects.appendChild(project);
+    });
+
+
+}
+
+function getInboxBody(){
+    let mainBody = document.querySelector("#main-body");
+
+    let inboxTitle = document.createElement("h2");
+    inboxTitle.innerHTML = "Inbox";
+
+    let inboxList = document.createElement("div");
+    inboxList.id = "inbox-list";
+
+    let addTaskButton = document.createElement("button");
+    addTaskButton.innerHTML = "Add Task";
+
+    mainBody.appendChild(inboxTitle);
+    mainBody.appendChild(inboxList);
+    mainBody.appendChild(addTaskButton);
+
+    createInboxList();
+
+}
+
+function createInboxList(){
+    //get all possible todos, then simply list them
+    let inboxList = document.querySelector("#inbox-list");
+
+    inbox.returnInboxArray().forEach(element => {
+        let listItem = createListItem( element );
+        listItem.className = "list-item";
+        inboxList.appendChild(listItem);
+    });
+}
+
+function createListItem( todoItem) {
+    let listItem = document.createElement("div");
+
+    let itemTitle = document.createElement("p");
+    itemTitle.innerHTML = todoItem.getTitle();
+
+    let itemDate = document.createElement("p");
+    itemDate.innerHTML = todoItem.getDueDate();
+
+    let editButton = document.createElement("button");
+    editButton.innerHTML = "edit";
+
+    let deleteButton = document.createElement("button");
+    deleteButton.innerHTML = "delete";
+
+    listItem.appendChild(itemTitle);
+    listItem.appendChild(itemDate);
+    listItem.appendChild(editButton);
+    listItem.appendChild(deleteButton);
+
+    return listItem;
 }
 
 function createFooter() {
+
+    let content = document.querySelector("#content");
+
     let footer = document.createElement("footer");
     let footerDescription = document.createElement("p");
     footerDescription.innerHTML = "Created By Seulchan Han";
 
     footer.appendChild(footerDescription);
     
-    return footer;
+    content.appendChild(footer);
 }
 
-function initializeSite() {
-
-    let body = document.querySelector("body");
-    let content = document.createElement("div");
-    content.id = "content";
-    body.appendChild(content);
-    DOMSkeleton();
-
-}
-
-export default initializeSite;
+initializeSite();
