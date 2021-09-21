@@ -1,5 +1,21 @@
 
 import { projectList, inbox } from "./todoList.js";
+import './style.css';
+
+let current= (() => {
+
+    let currentProjectSelected = "Home";
+
+    let returnCurrent = () => {
+        return currentProjectSelected;
+    }
+
+    let setCurrent = ( currentName ) => {
+        currentProjectSelected = currentName;
+    }
+
+    return {returnCurrent, setCurrent};
+})();
 
 function initializeSite() {
 
@@ -53,22 +69,22 @@ function createColumnBody() {
     content.appendChild(body);
 
     createInfoTab();
-    getInboxBody();
+    getMainBody();
 
 
 }
 
 function createInfoTab() {
 
-    let body = document.querySelector('#body');
 
     let infoTab = document.querySelector("#info-tab");
 
-    let options = ["Home", "Today", "Week"];
+    let options = ["Home", "Today", "Month"];
     options.forEach(element => {
         let optionButton = document.createElement("button");
         optionButton.className = "info-tab-button";
         optionButton.innerHTML = element;
+        optionButton.id = element;
         infoTab.appendChild(optionButton);    
     });
 
@@ -80,13 +96,13 @@ function createInfoTab() {
     currentProjects.id = "current-projects";
 
     let addProjectButton = document.createElement("button");
+    addProjectButton.id = "add-project-button";
     addProjectButton.innerHTML = "Add Project";
 
     infoTab.appendChild(projectTitle);
     infoTab.appendChild(currentProjects);
     infoTab.appendChild(addProjectButton);
 
-    body.appendChild(infoTab);
 
     createCurrentProjects();
 
@@ -94,54 +110,91 @@ function createInfoTab() {
 
 function createCurrentProjects() {
     //get all current projects, then for each create an element and append oto thing
+
     let currentProjects = document.getElementById("current-projects");
     //console.log(currentProjects);
-
+    let index = 0;
+    while (currentProjects.firstChild) {
+        currentProjects.removeChild(currentProjects.firstChild);
+    }
     projectList.getProjectList().forEach(element => {
         let project = document.createElement("div");
+        project.className = "project";
+        project.id = index;
+
         let name = document.createElement("p");
         name.innerHTML = element.getProjectTitle();
 
         let closeButton = document.createElement("button");
+        closeButton.innerHTML ="x";
         closeButton.className = "close-button";
+
+        closeButton.onclick = () => {
+            projectList.removeProject( project.id );
+            createCurrentProjects();
+        }
+
+        index++;
+
 
         project.appendChild(name);
         project.appendChild(closeButton);
         //console.log(project);
         currentProjects.appendChild(project);
+
     });
 
 
 }
 
-function getInboxBody(){
+
+
+function getMainBody(){
     let mainBody = document.querySelector("#main-body");
 
-    let inboxTitle = document.createElement("h2");
-    inboxTitle.innerHTML = "Inbox";
+    while (mainBody.firstChild) {
+        mainBody.removeChild(mainBody.firstChild);
+    }
 
-    let inboxList = document.createElement("div");
-    inboxList.id = "inbox-list";
+    let currentProject = projectList.getProject( current.returnCurrent() );
+
+    let mainTitle = document.createElement("h2");
+    mainTitle.innerHTML = currentProject.getProjectTitle();
+
+    let mainList = document.createElement("div");
+    mainList.id = "main-list";
 
     let addTaskButton = document.createElement("button");
+    addTaskButton.className = "add-task-button";
     addTaskButton.innerHTML = "Add Task";
 
-    mainBody.appendChild(inboxTitle);
-    mainBody.appendChild(inboxList);
+    mainBody.appendChild(mainTitle);
+    mainBody.appendChild(mainList);
     mainBody.appendChild(addTaskButton);
 
-    createInboxList();
+    
+
+    createMainList();
 
 }
 
-function createInboxList(){
+function createMainList(){
     //get all possible todos, then simply list them
-    let inboxList = document.querySelector("#inbox-list");
+    let mainList = document.querySelector("#main-list");
 
-    inbox.returnInboxArray().forEach(element => {
+    while (mainList.firstChild) {
+        mainList.removeChild(mainList.firstChild);
+    }
+
+    let index = 0;
+
+    let currentProject = projectList.getProject( current.returnCurrent() );
+    currentProject.getTodoList().forEach(element => {
         let listItem = createListItem( element );
         listItem.className = "list-item";
-        inboxList.appendChild(listItem);
+        listItem.id = index;
+        index++;
+        mainList.appendChild(listItem);
     });
 }
 
@@ -165,6 +218,11 @@ function createListItem( todoItem) {
     listItem.appendChild(editButton);
     listItem.appendChild(deleteButton);
 
+    deleteButton.onclick = () => {
+        projectList.getProject(current.returnCurrent()).removeTodo( listItem.id );
+        createMainList();
+    }
+
     return listItem;
 }
 
@@ -180,5 +238,9 @@ function createFooter() {
     
     content.appendChild(footer);
 }
+export {createCurrentProjects , current, getMainBody, createMainList};
 
 initializeSite();
+
+import {initializeEventHandlers} from "./EventHandler.js";
+initializeEventHandlers();

@@ -1,0 +1,86 @@
+/*
+body
+    content
+        header
+        body
+            infoTab
+                Home (info-tab-button)
+                Today 
+                Week
+                Projects title (h2)
+                projects (current-projects)
+                    name (p)
+                    close-button
+                add project
+            mainBody
+                inboxTitle
+                inboxList (inbox-list)
+                    (list-item)
+                    itemTitle
+                    itemDate
+                    editButton
+                    deleteButton
+                addTaskButton
+
+        footer
+
+*/
+
+body {
+   
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+header {
+    width: 100vw;
+}
+
+#body {
+    display:flex;
+    flex-direction: row;
+    height:80vh;
+}
+
+#info-tab {
+    display:flex;
+    flex-direction: column;
+    width:20vw;
+}
+
+#current-projects {
+    display:flex;
+    flex-direction: column;
+}
+
+.project {
+    display:flex;
+    justify-content: space-between;
+    
+}
+
+
+#main-body {
+    display:flex;
+    flex-direction: column;
+    width:80vw;
+    align-items: center;
+}
+
+#main-list {
+    display: flex;
+    flex-direction:column;
+}
+
+.list-item {
+    display: flex;
+}
+footer {
+    width: 100vw;
+    
+}
+

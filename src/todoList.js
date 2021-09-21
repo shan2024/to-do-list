@@ -7,12 +7,14 @@ class Project{
         this.projectTitle = projectTitle;
     }
 
-    addTodo(todo) {
-        todoArray.push(todo);
+    addTodo(todoTitle, dueDate, description) {
+        this.todoArray.push(new Todo( todoTitle, dueDate, description));
     }
 
-    removeTodo(todo) {
-        this.todoArray.splice( this.todoArray.indexOf(todo), 1);
+    removeTodo(index) {
+        
+        this.todoArray.splice( index, 1);
+          
     }
 
     getTodoList() {
@@ -55,41 +57,102 @@ class Todo {
         return this.description;
     }
 }
+
+
 let projectList = (() => {
+    let home =  new Project(  [ new Todo("untitled", "skjdf", "lsjdkf")], "Home" );
 
-    let projectArray = [new Project([], "untitled")];
 
-    let addProject = ( project) => {
-        projectArray.push(project);
+    let projectArray = [ new Project([], "untitled")];
+    let addProject = ( projectName) => {
+        if (projectName == ''){
+            projectArray.push( new Project([], "untitled"));
+        }
+        else {
+            projectArray.push( new Project([], projectName));
+
+        }
     }
 
-    let removeProject = (project)  => {
-        projectArray.splice( projectArray.indexOf(project), 1);
+    let removeProject = (index)  => {
+        console.log(index);
+        console.log(projectArray);
+        projectArray.splice( index, 1);
+        console.log(projectArray);
+
+
     }
 
     let getProjectList =()=> {
         return projectArray;
     }
 
-    return {addProject, removeProject, getProjectList};
+    let getProject = ( projectName) => {
+        if ( projectName =="Home") {
+            return home;
+        }
+        else if (projectName == "Today") {
+            return getTodayList();
+        }
+        else if (projectName == "Month") {
+            return getMonthList();
+        }
+        else {
+            projectArray.forEach(element => {
+                if ( element.getProjectTitle == projectName) {
+                    return element;
+                }
+            });
+        }
+    }
+
+    let getTodayList = () => {
+        let todayList = [];
+        let today = new Date();
+        console.log(projectArray);
+        home.getTodoList().forEach(element => {
+            if ( element.getDueDate().substring(0,10) == today ) {
+                todayList.push(element);
+            }
+        });
+
+        return todayList;
+    }
+
+    let getMonthList = () => {
+        let monthList = [];
+        let month = new Date();
+        home.getTodoList().forEach(element => {
+            if ( element.getDueDate().substring(0,10) == month.substring(0,7) ) {
+                monthList.push(element);
+            }
+        });
+
+        return monthList;
+    }
+
+    
+
+    return {addProject, removeProject, getProjectList, getProject,getTodayList,getMonthList};
 })();
 
-let inbox = (() => {
-    let inboxArray = [ new Todo("untitled", "skjdf", "lsjdkf")];
 
-    function addTodo( todo){
-        inboxArray.push(todo);
-    }
+// (() => {
+//     let inboxArray = [ new Todo("untitled", "skjdf", "lsjdkf")];
 
-    function removeTodo(todo){
-        inboxArray.splice( inboxArray.indexOf( todo), 1);
-    }
+//     function addTodo( todo){
+//         inboxArray.push(todo);
+//     }
 
-    function returnInboxArray() {
-        return inboxArray;
-    }
-    return { addTodo, removeTodo, returnInboxArray};
-})();
+//     function removeTodo(todo){
+//         inboxArray.splice( inboxArray.indexOf( todo), 1);
+//     }
+
+//     function returnInboxArray() {
+//         return inboxArray;
+//     }
+//     return { addTodo, removeTodo, returnInboxArray};
+// })();
 
 
-export {projectList,  inbox, };
+export {projectList };
