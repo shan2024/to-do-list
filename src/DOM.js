@@ -158,7 +158,14 @@ function getMainBody(){
 
     let currentProject = projectList.getProject( current.returnCurrent() );
 
+    if (currentProject === undefined) {
+        currentProject = projectList.getProjectByIndex(current.returnCurrent());
+    }
+
+
+
     let mainTitle = document.createElement("h2");
+    console.log( currentProject);
     mainTitle.innerHTML = currentProject.getProjectTitle();
 
     let mainList = document.createElement("div");
@@ -171,7 +178,9 @@ function getMainBody(){
     mainBody.appendChild(mainTitle);
     mainBody.appendChild(mainList);
     mainBody.appendChild(addTaskButton);
-
+    if (current.returnCurrent() == "Today" || current.returnCurrent() == "Month"){
+        addTaskButton.style.display = "none";
+    }
     
 
     createMainList();
@@ -189,6 +198,9 @@ function createMainList(){
     let index = 0;
 
     let currentProject = projectList.getProject( current.returnCurrent() );
+    if (currentProject === undefined) {
+        currentProject = projectList.getProjectByIndex(current.returnCurrent());
+    }
     currentProject.getTodoList().forEach(element => {
         let listItem = createListItem( element );
         listItem.className = "list-item";
@@ -196,6 +208,9 @@ function createMainList(){
         index++;
         mainList.appendChild(listItem);
     });
+
+    //console.log(currentProject);
+
 }
 
 function createListItem( todoItem) {
@@ -205,7 +220,7 @@ function createListItem( todoItem) {
     itemTitle.innerHTML = todoItem.getTitle();
 
     let itemDate = document.createElement("p");
-    itemDate.innerHTML = todoItem.getDueDate();
+    itemDate.innerHTML = todoItem.getDueDate().toString().substring(0,15);
 
     let editButton = document.createElement("button");
     editButton.innerHTML = "edit";

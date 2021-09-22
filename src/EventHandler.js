@@ -1,6 +1,7 @@
 import { projectList } from "./todoList";
 import { createCurrentProjects, createMainList, current, getMainBody, 
          } from "./DOM";
+import {async, format} from 'date-fns';
 
 
 function addTaskClicked() {
@@ -23,7 +24,7 @@ function addTaskClicked() {
     inputDescription.setAttribute("type", "text");
 
     let datePicker = document.createElement("input");
-    datePicker.setAttribute("type", "datetime-local");
+    datePicker.setAttribute("type", "date");
 
     var today = new Date();
     var dd = today.getDate();
@@ -62,8 +63,13 @@ function addTaskClicked() {
     }
 
     addButton.onclick = () => {
-
+        console.log("add clicked");
         let currentProject = projectList.getProject(current.returnCurrent());
+        if (currentProject === undefined) {
+            currentProject = projectList.getProjectByIndex(current.returnCurrent());
+        }
+        //console.log(datePicker.value);
+        //console.log( new Date());
         currentProject.addTodo( inputTaskName.value, datePicker.value, inputDescription.value);
         createMainList();
         mainBody.removeChild(mainBody.lastChild);
@@ -113,10 +119,18 @@ function addProjectClicked() {
 
 }
 
+function changeCurrentProject( index){
+    current.setCurrent(index);
+    getMainBody();
+    addTaskEvent();
+
+}
+
 function initializeEventHandlers() {
     addProjectEvent();
     addTaskEvent();
     addOptionsEvent();
+    addProjectListEvent();
 }
 
 function addProjectEvent() {
@@ -139,7 +153,19 @@ function addOptionsEvent() {
         element.onclick = () => {
             current.setCurrent(element.id); 
             getMainBody();
+            addTaskEvent();
         }
     });
 }
-export { initializeEventHandlers };
+
+function addProjectListEvent() {
+    let projectList = document.querySelector("#current-projects");
+
+    projectList.addEventListener('click', e => {
+        if (e.target.className == 'project') {
+            changeCurrentProject( e.target.id );
+        }
+    })
+    
+}
+export { initializeEventHandlers, addTaskEvent };

@@ -8,7 +8,7 @@ class Project{
     }
 
     addTodo(todoTitle, dueDate, description) {
-        this.todoArray.push(new Todo( todoTitle, dueDate, description));
+        this.todoArray.push(new Todo( todoTitle, new Date(dueDate), description));
     }
 
     removeTodo(index) {
@@ -27,7 +27,7 @@ class Project{
 }
 
 class Todo {
-    constructor(todoTitle = "untitled", dueDate, description = "none") {
+    constructor(todoTitle = "untitled", dueDate = new Date(), description = "none") {
         this.todoTitle = todoTitle;
         this.dueDate = dueDate;
         this.description = description;
@@ -60,7 +60,7 @@ class Todo {
 
 
 let projectList = (() => {
-    let home =  new Project(  [ new Todo("untitled", "skjdf", "lsjdkf")], "Home" );
+    let home =  new Project(  [ new Todo("untitled", new Date(), "lsjdkf")], "Home" );
 
 
     let projectArray = [ new Project([], "untitled")];
@@ -88,52 +88,60 @@ let projectList = (() => {
     }
 
     let getProject = ( projectName) => {
+        console.log(projectName);
         if ( projectName =="Home") {
             return home;
         }
         else if (projectName == "Today") {
-            return getTodayList();
+            return getTodayProject();
         }
         else if (projectName == "Month") {
-            return getMonthList();
+            return getMonthProject();
         }
         else {
             projectArray.forEach(element => {
-                if ( element.getProjectTitle == projectName) {
+                if ( element.getProjectTitle() == projectName ) {
                     return element;
                 }
             });
+            
         }
     }
 
-    let getTodayList = () => {
+    let getProjectByIndex = ( index ) => {
+        return projectArray[index];
+    }
+
+    let getTodayProject = () => {
         let todayList = [];
         let today = new Date();
-        console.log(projectArray);
+        //console.log(projectArray);
         home.getTodoList().forEach(element => {
-            if ( element.getDueDate().substring(0,10) == today ) {
+            //console.log( element.getDueDate().toString().substring(0,10) );
+            //console.log( new Date());
+            if ( element.getDueDate().toString().substring(0,10) == today.toString().substring(0,10) ) {
                 todayList.push(element);
             }
         });
 
-        return todayList;
+        return new Project( todayList, "Today");
     }
 
-    let getMonthList = () => {
+    let getMonthProject = () => {
         let monthList = [];
         let month = new Date();
         home.getTodoList().forEach(element => {
-            if ( element.getDueDate().substring(0,10) == month.substring(0,7) ) {
+            if ( element.getDueDate().toString().substring(5,9) == month.toString().substring(5,9) ) {
                 monthList.push(element);
             }
         });
 
-        return monthList;
+        return new Project( monthList, "Month");
     }
 
     
 
-    return {addProject, removeProject, getProjectList, getProject,getTodayList,getMonthList};
+    return {addProject, removeProject, getProjectList, getProject,getTodayProject,getMonthProject,getProjectByIndex};
 })();
 
 
