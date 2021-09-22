@@ -131,14 +131,20 @@ function createCurrentProjects() {
 
         closeButton.onclick = () => {
             console.log("closed");
+
+            projectList.getProjectByIndex(current.returnCurrent()).getTodoList().forEach(element => {
+                projectList.getProject("Home").removeTodo( projectList.getProject("Home").getTodoList().indexOf(element));
+            })
+
             projectList.removeProject(project.id);
-            current.setCurrent("Home");
+            //current.setCurrent("Home");
             let mainBody = document.querySelector("#main-body");
 
             while (mainBody.firstChild) {
                 mainBody.removeChild(mainBody.firstChild);
             }
             createCurrentProjects();
+
 
         }
 
@@ -275,6 +281,8 @@ function createListItem(todoItem) {
     //     addEditForm(e, todoItem)
     // });
     itemTitle.onclick = (e) => {
+        
+
         let editForm = document.createElement("input");
         editForm.setAttribute("type", "text");
         editForm.value = todoItem.getTitle();
@@ -286,10 +294,70 @@ function createListItem(todoItem) {
             if (e.target != editForm){
                 //console.log(324524542);
                 todoItem.setTitle( editForm.value);
+
+                if( current.returnCurrent() == "Home" && todoItem.getDescription() == "Home" ){
+
+                }
+                else if (current.returnCurrent() != "Home"){
+                    let homeProject = projectList.getProject("Home");
+                    let homeIndex = homeProject.getTodoList().indexOf( todoItem);
+                    homeProject.getTodoList().splice(homeIndex, 1, todoItem);
+                }
+                else {
+                    let currentProject = projectList.getProjectByIndex( todoItem.getDescription());
+                    let currentIndex = currentProject.getTodoList().indexOf(todoItem);
+                    currentProject.getTodoList().splice(currentIndex, 1, todoItem);
+                }
                 createMainList();
             }
         }
 
+    }
+
+    itemDate.onclick = (e) => {
+        let editDateForm = document.createElement("input");
+        editDateForm.setAttribute("type", "date");
+
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth() + 1; //January is 0!
+        let yyyy = today.getFullYear();
+    
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+    
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+    
+        today = yyyy + '-' + mm + '-' + dd;
+        editDateForm.setAttribute("min", today);
+
+        itemDate.replaceWith(editDateForm);
+        e.stopPropagation();
+        window.onclick = (e) => {
+            e.stopPropagation();
+            if( e.target != editDateForm){
+                todoItem.setDueDate( editDateForm.value);
+
+                if( current.returnCurrent() == "Home" && todoItem.getDescription() == "Home" ){
+                    
+                }
+                else if (current.returnCurrent() != "Home"){
+                    let homeProject = projectList.getProject("Home");
+                    let homeIndex = homeProject.getTodoList().indexOf( todoItem);
+                    homeProject.getTodoList().splice(homeIndex, 1, todoItem);
+                }
+                else {
+                    let currentProject = projectList.getProjectByIndex( todoItem.getDescription());
+                    let currentIndex = currentProject.getTodoList().indexOf(todoItem);
+                    currentProject.getTodoList().splice(currentIndex, 1, todoItem);
+                }
+
+                createMainList();
+            }
+        }
     }
 
     return listItem;

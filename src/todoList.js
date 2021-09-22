@@ -8,8 +8,9 @@ class Project{
     }
 
     addTodo(todoTitle, dueDate, description) {
-        let newDate = new Date(dueDate);
-        console.log(newDate.getTime() !== newDate.getTime());
+        let newDate = new Date(dueDate.replace(/-/g, '\/'));
+        console.log(dueDate);
+        console.log(newDate);
         if( newDate.getTime() !== newDate.getTime()) {
             newDate = new Date();
         }
@@ -43,7 +44,11 @@ class Todo {
     }
 
     setDueDate( date){
-        this.dueDate = date;
+        let newDate = new Date(date.replace(/-/g, '\/'));
+        if( newDate.getTime() !== newDate.getTime()){
+            newDate = new Date();
+        }
+        this.dueDate = newDate;
     }
 
     setDescription( phrase){
