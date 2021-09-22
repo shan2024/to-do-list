@@ -8,7 +8,12 @@ class Project{
     }
 
     addTodo(todoTitle, dueDate, description) {
-        this.todoArray.push(new Todo( todoTitle, new Date(dueDate), description));
+        let newDate = new Date(dueDate);
+        console.log(newDate.getTime() !== newDate.getTime());
+        if( newDate.getTime() !== newDate.getTime()) {
+            newDate = new Date();
+        }
+        this.todoArray.push(new Todo( todoTitle, newDate, description));
     }
 
     removeTodo(index) {
@@ -27,7 +32,7 @@ class Project{
 }
 
 class Todo {
-    constructor(todoTitle = "untitled", dueDate = new Date(), description = "none") {
+    constructor(todoTitle = "untitled", dueDate = new Date(), description = "Home") {
         this.todoTitle = todoTitle;
         this.dueDate = dueDate;
         this.description = description;
@@ -60,7 +65,7 @@ class Todo {
 
 
 let projectList = (() => {
-    let home =  new Project(  [ new Todo("untitled", new Date(), "lsjdkf")], "Home" );
+    let home =  new Project(  [ new Todo("untitled", new Date(), "Home")], "Home" );
 
 
     let projectArray = [ new Project([], "untitled")];
@@ -112,6 +117,10 @@ let projectList = (() => {
         return projectArray[index];
     }
 
+    let getHomeProject = () => {
+        return home;
+    }
+
     let getTodayProject = () => {
         let todayList = [];
         let today = new Date();
@@ -141,7 +150,7 @@ let projectList = (() => {
 
     
 
-    return {addProject, removeProject, getProjectList, getProject,getTodayProject,getMonthProject,getProjectByIndex};
+    return {getHomeProject, addProject, removeProject, getProjectList, getProject,getTodayProject,getMonthProject,getProjectByIndex};
 })();
 
 

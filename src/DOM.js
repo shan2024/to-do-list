@@ -2,7 +2,7 @@
 import { projectList, inbox } from "./todoList.js";
 import './style.css';
 
-let current= (() => {
+let current = (() => {
 
     let currentProjectSelected = "Home";
 
@@ -10,11 +10,11 @@ let current= (() => {
         return currentProjectSelected;
     }
 
-    let setCurrent = ( currentName ) => {
+    let setCurrent = (currentName) => {
         currentProjectSelected = currentName;
     }
 
-    return {returnCurrent, setCurrent};
+    return { returnCurrent, setCurrent };
 })();
 
 function initializeSite() {
@@ -34,7 +34,7 @@ function DOMSkeleton() {
     createColumnBody();
     createFooter();
 
-  
+
 
 
 }
@@ -85,7 +85,7 @@ function createInfoTab() {
         optionButton.className = "info-tab-button";
         optionButton.innerHTML = element;
         optionButton.id = element;
-        infoTab.appendChild(optionButton);    
+        infoTab.appendChild(optionButton);
     });
 
     let projectTitle = document.createElement("h2");
@@ -126,12 +126,20 @@ function createCurrentProjects() {
         name.innerHTML = element.getProjectTitle();
 
         let closeButton = document.createElement("button");
-        closeButton.innerHTML ="x";
+        closeButton.innerHTML = "x";
         closeButton.className = "close-button";
 
         closeButton.onclick = () => {
-            projectList.removeProject( project.id );
+            console.log("closed");
+            projectList.removeProject(project.id);
+            current.setCurrent("Home");
+            let mainBody = document.querySelector("#main-body");
+
+            while (mainBody.firstChild) {
+                mainBody.removeChild(mainBody.firstChild);
+            }
             createCurrentProjects();
+
         }
 
         index++;
@@ -149,14 +157,14 @@ function createCurrentProjects() {
 
 
 
-function getMainBody(){
+function getMainBody() {
     let mainBody = document.querySelector("#main-body");
 
     while (mainBody.firstChild) {
         mainBody.removeChild(mainBody.firstChild);
     }
 
-    let currentProject = projectList.getProject( current.returnCurrent() );
+    let currentProject = projectList.getProject(current.returnCurrent());
 
     if (currentProject === undefined) {
         currentProject = projectList.getProjectByIndex(current.returnCurrent());
@@ -165,7 +173,7 @@ function getMainBody(){
 
 
     let mainTitle = document.createElement("h2");
-    console.log( currentProject);
+    console.log(currentProject);
     mainTitle.innerHTML = currentProject.getProjectTitle();
 
     let mainList = document.createElement("div");
@@ -178,16 +186,17 @@ function getMainBody(){
     mainBody.appendChild(mainTitle);
     mainBody.appendChild(mainList);
     mainBody.appendChild(addTaskButton);
-    if (current.returnCurrent() == "Today" || current.returnCurrent() == "Month"){
+    if (current.returnCurrent() == "Today" || current.returnCurrent() == "Month") {
         addTaskButton.style.display = "none";
     }
-    
 
     createMainList();
 
+
+
 }
 
-function createMainList(){
+function createMainList() {
     //get all possible todos, then simply list them
     let mainList = document.querySelector("#main-list");
 
@@ -197,12 +206,12 @@ function createMainList(){
 
     let index = 0;
 
-    let currentProject = projectList.getProject( current.returnCurrent() );
+    let currentProject = projectList.getProject(current.returnCurrent());
     if (currentProject === undefined) {
         currentProject = projectList.getProjectByIndex(current.returnCurrent());
     }
     currentProject.getTodoList().forEach(element => {
-        let listItem = createListItem( element );
+        let listItem = createListItem(element);
         listItem.className = "list-item";
         listItem.id = index;
         index++;
@@ -213,14 +222,14 @@ function createMainList(){
 
 }
 
-function createListItem( todoItem) {
+function createListItem(todoItem) {
     let listItem = document.createElement("div");
 
     let itemTitle = document.createElement("p");
     itemTitle.innerHTML = todoItem.getTitle();
 
     let itemDate = document.createElement("p");
-    itemDate.innerHTML = todoItem.getDueDate().toString().substring(0,15);
+    itemDate.innerHTML = todoItem.getDueDate().toString().substring(0, 15);
 
     let editButton = document.createElement("button");
     editButton.innerHTML = "edit";
@@ -233,13 +242,60 @@ function createListItem( todoItem) {
     listItem.appendChild(editButton);
     listItem.appendChild(deleteButton);
 
+    
+
     deleteButton.onclick = () => {
-        projectList.getProject(current.returnCurrent()).removeTodo( listItem.id );
+        if (current.returnCurrent() == "Home") {
+            projectList.getProject(current.returnCurrent()).removeTodo(listItem.id);
+            console.log(projectList.getProjectByIndex(todoItem.getDescription()));
+            if (todoItem.getDescription() != "Home") {
+                projectList.getProjectByIndex(todoItem.getDescription()).getTodoList().forEach(element => {
+                    if (todoItem.getDueDate().toString() == element.getDueDate().toString()) {
+                        projectList.getProjectByIndex(todoItem.getDescription()).removeTodo(projectList.getProjectByIndex(todoItem.getDescription()).getTodoList().indexOf(element));
+                    }
+                });
+            }
+        }
+        else {
+            projectList.getProjectByIndex(current.returnCurrent()).removeTodo(listItem.id);
+            projectList.getProject("Home").getTodoList().forEach(element => {
+                console.log(498759834);
+                if (todoItem.getDueDate().toString() == element.getDueDate().toString()) {
+                    console.log(todoItem);
+                    console.log(element);
+                    projectList.getProject("Home").removeTodo( projectList.getProject("Home").getTodoList().indexOf(element) );
+                }
+            })
+
+        }
         createMainList();
+    }
+
+    // itemTitle.addEventListener("click", function(e, todoItem) {
+    //     addEditForm(e, todoItem)
+    // });
+    itemTitle.onclick = (e) => {
+        let editForm = document.createElement("input");
+        editForm.setAttribute("type", "text");
+        editForm.value = todoItem.getTitle();
+
+        itemTitle.replaceWith(editForm);
+        e.stopPropagation();
+        window.onclick = (e) => {
+            e.stopPropagation();
+            if (e.target != editForm){
+                //console.log(324524542);
+                todoItem.setTitle( editForm.value);
+                createMainList();
+            }
+        }
+
     }
 
     return listItem;
 }
+
+
 
 function createFooter() {
 
@@ -250,12 +306,12 @@ function createFooter() {
     footerDescription.innerHTML = "Created By Seulchan Han";
 
     footer.appendChild(footerDescription);
-    
+
     content.appendChild(footer);
 }
-export {createCurrentProjects , current, getMainBody, createMainList};
+export { createCurrentProjects, current, getMainBody, createMainList };
 
 initializeSite();
 
-import {initializeEventHandlers} from "./EventHandler.js";
+import { initializeEventHandlers, addTaskEvent } from "./EventHandler.js";
 initializeEventHandlers();

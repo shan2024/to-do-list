@@ -18,18 +18,15 @@ function addTaskClicked() {
     inputTaskName.setAttribute("name", "task-name");
     inputTaskName.setAttribute("type", "text");
 
-    let inputDescription = document.createElement("input");
-    inputDescription.setAttribute("placeholder", "Description");
-    inputDescription.setAttribute("name", "task-description");
-    inputDescription.setAttribute("type", "text");
-
+    let inputDescription = current.returnCurrent();
+    //console.log(inputDescription);
     let datePicker = document.createElement("input");
     datePicker.setAttribute("type", "date");
 
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth() + 1; //January is 0!
-    var yyyy = today.getFullYear();
+    let today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth() + 1; //January is 0!
+    let yyyy = today.getFullYear();
 
     if (dd < 10) {
         dd = '0' + dd;
@@ -42,6 +39,9 @@ function addTaskClicked() {
     today = yyyy + '-' + mm + '-' + dd;
     datePicker.setAttribute("min", today);
     datePicker.setAttribute("name", "task-date-picker");
+    // let currentDate = new Date();
+    // datePicker.value = currentDate;
+    // console.log(new Date());
 
     let addButton = document.createElement("button");
     addButton.innerHTML = "Add";
@@ -50,7 +50,6 @@ function addTaskClicked() {
     cancelButton.innerHTML = "Cancel";
 
     addTaskForm.appendChild(inputTaskName);
-    addTaskForm.appendChild(inputDescription);
     addTaskForm.appendChild(datePicker);
     addTaskForm.appendChild(addButton);
     addTaskForm.appendChild(cancelButton);
@@ -63,14 +62,22 @@ function addTaskClicked() {
     }
 
     addButton.onclick = () => {
-        console.log("add clicked");
         let currentProject = projectList.getProject(current.returnCurrent());
         if (currentProject === undefined) {
             currentProject = projectList.getProjectByIndex(current.returnCurrent());
         }
         //console.log(datePicker.value);
         //console.log( new Date());
-        currentProject.addTodo( inputTaskName.value, datePicker.value, inputDescription.value);
+
+        if ( inputTaskName.value == ""){
+            inputTaskName.value = "untitled";
+        }
+        if ( current.returnCurrent() != "Home"){
+            projectList.getHomeProject().addTodo(inputTaskName.value, datePicker.value, inputDescription);
+        }
+
+        currentProject.addTodo( inputTaskName.value, datePicker.value, inputDescription);
+
         createMainList();
         mainBody.removeChild(mainBody.lastChild);
         addTaskButton.style.display = "block";
@@ -120,6 +127,7 @@ function addProjectClicked() {
 }
 
 function changeCurrentProject( index){
+    console.log("chagecurrent");
     current.setCurrent(index);
     getMainBody();
     addTaskEvent();
