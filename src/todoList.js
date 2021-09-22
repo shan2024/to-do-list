@@ -5,6 +5,7 @@ class Project{
     constructor( todoArray = [], projectTitle = "untitled" ){
         this.todoArray = todoArray;
         this.projectTitle = projectTitle;
+        this.storedArray = [];
     }
 
     addTodo(todoTitle, dueDate, description) {
@@ -30,6 +31,21 @@ class Project{
     getProjectTitle() {
         return this.projectTitle;
     }
+
+    sortArray() {
+        let otherArray = [...this.todoArray];
+        otherArray.sort( function(a,b){
+            return a.getDueDate() - b.getDueDate();
+        })
+        
+        this.storedArray = [...this.todoArray];
+        this.todoArray = otherArray;
+    }
+
+    unsortArray() {
+        this.todoArray = this.storedArray;
+    }
+    
 }
 
 class Todo {

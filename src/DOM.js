@@ -133,7 +133,7 @@ function createCurrentProjects() {
             console.log("closed");
 
             projectList.getProjectByIndex(current.returnCurrent()).getTodoList().forEach(element => {
-                projectList.getProject("Home").removeTodo( projectList.getProject("Home").getTodoList().indexOf(element));
+                projectList.getProject("Home").removeTodo(projectList.getProject("Home").getTodoList().indexOf(element));
             })
 
             projectList.removeProject(project.id);
@@ -177,10 +177,39 @@ function getMainBody() {
     }
 
 
+    let headContainer = document.createElement("div");
 
     let mainTitle = document.createElement("h2");
-    console.log(currentProject);
+
     mainTitle.innerHTML = currentProject.getProjectTitle();
+    let label = document.createElement("label");
+    label.innerHTML = "Due Date";
+    let sortInput = document.createElement("input");
+    sortInput.setAttribute("type", "checkbox");
+
+    sortInput.onchange = (e) => {
+        if (e.target.checked) {
+            if (current.returnCurrent() == "Home") {
+                projectList.getProject("Home").sortArray();
+            }
+            else {
+                projectList.getProjectByIndex(current.returnCurrent()).sortArray();
+            }
+        }
+        else {
+            if (current.returnCurrent() == "Home") {
+                projectList.getProject("Home").unsortArray();
+            }
+            else {
+                projectList.getProjectByIndex(current.returnCurrent()).unsortArray();
+            }
+        }
+        createMainList();
+    }
+
+    headContainer.appendChild(mainTitle);
+    headContainer.appendChild(label);
+    headContainer.appendChild(sortInput);
 
     let mainList = document.createElement("div");
     mainList.id = "main-list";
@@ -189,7 +218,7 @@ function getMainBody() {
     addTaskButton.className = "add-task-button";
     addTaskButton.innerHTML = "Add Task";
 
-    mainBody.appendChild(mainTitle);
+    mainBody.appendChild(headContainer);
     mainBody.appendChild(mainList);
     mainBody.appendChild(addTaskButton);
     if (current.returnCurrent() == "Today" || current.returnCurrent() == "Month") {
@@ -228,6 +257,7 @@ function createMainList() {
 
 }
 
+
 function createListItem(todoItem) {
     let listItem = document.createElement("div");
 
@@ -248,12 +278,13 @@ function createListItem(todoItem) {
     listItem.appendChild(editButton);
     listItem.appendChild(deleteButton);
 
-    
 
     deleteButton.onclick = () => {
         if (current.returnCurrent() == "Home") {
+            projectList.getProjectByIndex(todoItem.getDescription()).unsortArray();
+            projectList.getProject("Home").unsortArray();
+
             projectList.getProject(current.returnCurrent()).removeTodo(listItem.id);
-            console.log(projectList.getProjectByIndex(todoItem.getDescription()));
             if (todoItem.getDescription() != "Home") {
                 projectList.getProjectByIndex(todoItem.getDescription()).getTodoList().forEach(element => {
                     if (todoItem.getDueDate().toString() == element.getDueDate().toString()) {
@@ -263,13 +294,15 @@ function createListItem(todoItem) {
             }
         }
         else {
+            projectList.getProject("Home").unsortArray();
+            projectList.getProjectByIndex(current.returnCurrent()).unsortArray();
+
             projectList.getProjectByIndex(current.returnCurrent()).removeTodo(listItem.id);
             projectList.getProject("Home").getTodoList().forEach(element => {
-                console.log(498759834);
                 if (todoItem.getDueDate().toString() == element.getDueDate().toString()) {
                     console.log(todoItem);
                     console.log(element);
-                    projectList.getProject("Home").removeTodo( projectList.getProject("Home").getTodoList().indexOf(element) );
+                    projectList.getProject("Home").removeTodo(projectList.getProject("Home").getTodoList().indexOf(element));
                 }
             })
 
@@ -281,7 +314,7 @@ function createListItem(todoItem) {
     //     addEditForm(e, todoItem)
     // });
     itemTitle.onclick = (e) => {
-        
+
 
         let editForm = document.createElement("input");
         editForm.setAttribute("type", "text");
@@ -291,20 +324,20 @@ function createListItem(todoItem) {
         e.stopPropagation();
         window.onclick = (e) => {
             e.stopPropagation();
-            if (e.target != editForm){
+            if (e.target != editForm) {
                 //console.log(324524542);
-                todoItem.setTitle( editForm.value);
+                todoItem.setTitle(editForm.value);
 
-                if( current.returnCurrent() == "Home" && todoItem.getDescription() == "Home" ){
+                if (current.returnCurrent() == "Home" && todoItem.getDescription() == "Home") {
 
                 }
-                else if (current.returnCurrent() != "Home"){
+                else if (current.returnCurrent() != "Home") {
                     let homeProject = projectList.getProject("Home");
-                    let homeIndex = homeProject.getTodoList().indexOf( todoItem);
+                    let homeIndex = homeProject.getTodoList().indexOf(todoItem);
                     homeProject.getTodoList().splice(homeIndex, 1, todoItem);
                 }
                 else {
-                    let currentProject = projectList.getProjectByIndex( todoItem.getDescription());
+                    let currentProject = projectList.getProjectByIndex(todoItem.getDescription());
                     let currentIndex = currentProject.getTodoList().indexOf(todoItem);
                     currentProject.getTodoList().splice(currentIndex, 1, todoItem);
                 }
@@ -322,15 +355,15 @@ function createListItem(todoItem) {
         let dd = today.getDate();
         let mm = today.getMonth() + 1; //January is 0!
         let yyyy = today.getFullYear();
-    
+
         if (dd < 10) {
             dd = '0' + dd;
         }
-    
+
         if (mm < 10) {
             mm = '0' + mm;
         }
-    
+
         today = yyyy + '-' + mm + '-' + dd;
         editDateForm.setAttribute("min", today);
 
@@ -338,19 +371,19 @@ function createListItem(todoItem) {
         e.stopPropagation();
         window.onclick = (e) => {
             e.stopPropagation();
-            if( e.target != editDateForm){
-                todoItem.setDueDate( editDateForm.value);
+            if (e.target != editDateForm) {
+                todoItem.setDueDate(editDateForm.value);
 
-                if( current.returnCurrent() == "Home" && todoItem.getDescription() == "Home" ){
-                    
+                if (current.returnCurrent() == "Home" && todoItem.getDescription() == "Home") {
+
                 }
-                else if (current.returnCurrent() != "Home"){
+                else if (current.returnCurrent() != "Home") {
                     let homeProject = projectList.getProject("Home");
-                    let homeIndex = homeProject.getTodoList().indexOf( todoItem);
+                    let homeIndex = homeProject.getTodoList().indexOf(todoItem);
                     homeProject.getTodoList().splice(homeIndex, 1, todoItem);
                 }
                 else {
-                    let currentProject = projectList.getProjectByIndex( todoItem.getDescription());
+                    let currentProject = projectList.getProjectByIndex(todoItem.getDescription());
                     let currentIndex = currentProject.getTodoList().indexOf(todoItem);
                     currentProject.getTodoList().splice(currentIndex, 1, todoItem);
                 }
@@ -382,4 +415,5 @@ export { createCurrentProjects, current, getMainBody, createMainList };
 initializeSite();
 
 import { initializeEventHandlers, addTaskEvent } from "./EventHandler.js";
+import { he } from "date-fns/locale";
 initializeEventHandlers();
