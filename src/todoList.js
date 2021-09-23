@@ -1,27 +1,38 @@
 
 
-class Project{
-    
-    constructor( todoArray = [], projectTitle = "untitled" ){
+
+class Project {
+
+    constructor(todoArray = [], projectTitle = "untitled") {
         this.todoArray = todoArray;
         this.projectTitle = projectTitle;
         this.storedArray = [];
+        this.isSorted = false;
     }
 
     addTodo(todoTitle, dueDate, description) {
         let newDate = new Date(dueDate.replace(/-/g, '\/'));
-        console.log(dueDate);
-        console.log(newDate);
-        if( newDate.getTime() !== newDate.getTime()) {
+        
+        if (newDate.getTime() !== newDate.getTime()) {
             newDate = new Date();
         }
-        this.todoArray.push(new Todo( todoTitle, newDate, description));
+        if (this.isSorted) {
+            this.unsortArray();
+            this.todoArray.push(new Todo(todoTitle, newDate, description));
+            this.sortArray();
+        }
+        else {
+            this.todoArray.push(new Todo(todoTitle, newDate, description));
+        }
+
+
     }
 
     removeTodo(index) {
-        
-        this.todoArray.splice( index, 1);
-          
+
+        this.todoArray.splice(index, 1);
+
+
     }
 
     getTodoList() {
@@ -34,18 +45,24 @@ class Project{
 
     sortArray() {
         let otherArray = [...this.todoArray];
-        otherArray.sort( function(a,b){
+        otherArray.sort(function (a, b) {
             return a.getDueDate() - b.getDueDate();
         })
-        
+
         this.storedArray = [...this.todoArray];
         this.todoArray = otherArray;
+        this.isSorted = true;
     }
 
     unsortArray() {
         this.todoArray = this.storedArray;
+        this.isSorted = false;
     }
-    
+
+    returnIsSorted() {
+        return this.isSorted;
+    }
+
 }
 
 class Todo {
@@ -55,19 +72,19 @@ class Todo {
         this.description = description;
     }
 
-    setTitle(title){
-        this.todoTitle = title; 
+    setTitle(title) {
+        this.todoTitle = title;
     }
 
-    setDueDate( date){
+    setDueDate(date) {
         let newDate = new Date(date.replace(/-/g, '\/'));
-        if( newDate.getTime() !== newDate.getTime()){
+        if (newDate.getTime() !== newDate.getTime()) {
             newDate = new Date();
         }
         this.dueDate = newDate;
     }
 
-    setDescription( phrase){
+    setDescription(phrase) {
         this.description = phrase;
     }
 
@@ -86,55 +103,46 @@ class Todo {
 
 
 let projectList = (() => {
-    let home =  new Project(  [ new Todo("untitled", new Date(), "Home")], "Home" );
+    let home = new Project([new Todo("Sample Task", new Date(), "Home")], "Home");
+    let projectArray = [new Project([], "Sample Project")];
 
 
-    let projectArray = [ new Project([], "untitled")];
-    let addProject = ( projectName) => {
-        if (projectName == ''){
-            projectArray.push( new Project([], "untitled"));
+    let addProject = (projectName) => {
+        if (projectName == '') {
+            projectArray.push(new Project([], "untitled"));
+
         }
         else {
-            projectArray.push( new Project([], projectName));
+            projectArray.push(new Project([], projectName));
 
         }
     }
 
-    let removeProject = (index)  => {
-        console.log(index);
-        console.log(projectArray);
-        projectArray.splice( index, 1);
-        console.log(projectArray);
+    let removeProject = (index) => {
+        projectArray.splice(index, 1);
 
 
     }
 
-    let getProjectList =()=> {
+    let getProjectList = () => {
         return projectArray;
     }
 
-    let getProject = ( projectName) => {
-        console.log(projectName);
-        if ( projectName =="Home") {
+    let getProject = (projectName) => {
+        if (projectName == "Home") {
             return home;
-        }
-        else if (projectName == "Today") {
-            return getTodayProject();
-        }
-        else if (projectName == "Month") {
-            return getMonthProject();
         }
         else {
             projectArray.forEach(element => {
-                if ( element.getProjectTitle() == projectName ) {
+                if (element.getProjectTitle() == projectName) {
                     return element;
                 }
             });
-            
+
         }
     }
 
-    let getProjectByIndex = ( index ) => {
+    let getProjectByIndex = (index) => {
         return projectArray[index];
     }
 
@@ -142,55 +150,12 @@ let projectList = (() => {
         return home;
     }
 
-    let getTodayProject = () => {
-        let todayList = [];
-        let today = new Date();
-        //console.log(projectArray);
-        home.getTodoList().forEach(element => {
-            //console.log( element.getDueDate().toString().substring(0,10) );
-            //console.log( new Date());
-            if ( element.getDueDate().toString().substring(0,10) == today.toString().substring(0,10) ) {
-                todayList.push(element);
-            }
-        });
 
-        return new Project( todayList, "Today");
-    }
 
-    let getMonthProject = () => {
-        let monthList = [];
-        let month = new Date();
-        home.getTodoList().forEach(element => {
-            if ( element.getDueDate().toString().substring(5,9) == month.toString().substring(5,9) ) {
-                monthList.push(element);
-            }
-        });
 
-        return new Project( monthList, "Month");
-    }
 
-    
-
-    return {getHomeProject, addProject, removeProject, getProjectList, getProject,getTodayProject,getMonthProject,getProjectByIndex};
+    return { getHomeProject, addProject, removeProject, getProjectList, getProject, getProjectByIndex };
 })();
 
 
-// (() => {
-//     let inboxArray = [ new Todo("untitled", "skjdf", "lsjdkf")];
-
-//     function addTodo( todo){
-//         inboxArray.push(todo);
-//     }
-
-//     function removeTodo(todo){
-//         inboxArray.splice( inboxArray.indexOf( todo), 1);
-//     }
-
-//     function returnInboxArray() {
-//         return inboxArray;
-//     }
-//     return { addTodo, removeTodo, returnInboxArray};
-// })();
-
-
-export {projectList };
+export { projectList };

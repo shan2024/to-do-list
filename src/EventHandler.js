@@ -1,7 +1,10 @@
 import { projectList } from "./todoList";
-import { createCurrentProjects, createMainList, current, getMainBody, 
-         } from "./DOM";
-import {async, format} from 'date-fns';
+import {
+    createCurrentProjects, createMainList, current, getMainBody,
+} from "./DOM";
+
+import clearIcon from "./clearIcon.svg";
+import addIcon from "./addIcon.svg";
 
 
 function addTaskClicked() {
@@ -11,6 +14,7 @@ function addTaskClicked() {
     let mainBody = document.querySelector("#main-body");
 
     let addTaskForm = document.createElement("div");
+    addTaskForm.className = "add-task-form";
 
     let inputTaskName = document.createElement("input");
     inputTaskName.required = true;
@@ -19,7 +23,6 @@ function addTaskClicked() {
     inputTaskName.setAttribute("type", "text");
 
     let inputDescription = current.returnCurrent();
-    //console.log(inputDescription);
     let datePicker = document.createElement("input");
     datePicker.setAttribute("type", "date");
 
@@ -41,24 +44,24 @@ function addTaskClicked() {
     datePicker.setAttribute("name", "task-date-picker");
     // let currentDate = new Date();
     // datePicker.value = currentDate;
-    // console.log(new Date());
 
-    let addButton = document.createElement("button");
-    addButton.innerHTML = "Add";
+    let addButton = new Image();
+    addButton.src = addIcon;
+    addButton.className = "add-button";
 
-    let cancelButton = document.createElement('button');
-    cancelButton.innerHTML = "Cancel";
+    let cancelButton = new Image();
+    cancelButton.src = clearIcon;
+    cancelButton.className = "clear-button";
 
     addTaskForm.appendChild(inputTaskName);
     addTaskForm.appendChild(datePicker);
     addTaskForm.appendChild(addButton);
     addTaskForm.appendChild(cancelButton);
-
     mainBody.appendChild(addTaskForm);
 
     cancelButton.onclick = () => {
         mainBody.removeChild(mainBody.lastChild);
-        addTaskButton.style.display = "block";
+        addTaskButton.style.display = "flex";
     }
 
     addButton.onclick = () => {
@@ -66,32 +69,32 @@ function addTaskClicked() {
         if (currentProject === undefined) {
             currentProject = projectList.getProjectByIndex(current.returnCurrent());
         }
-        //console.log(datePicker.value);
-        //console.log( new Date());
+        
 
-        if ( inputTaskName.value == ""){
+        if (inputTaskName.value == "") {
             inputTaskName.value = "untitled";
         }
-        if ( current.returnCurrent() != "Home"){
+        if (current.returnCurrent() != "Home") {
             projectList.getHomeProject().addTodo(inputTaskName.value, datePicker.value, inputDescription);
         }
 
-        currentProject.addTodo( inputTaskName.value, datePicker.value, inputDescription);
+        currentProject.addTodo(inputTaskName.value, datePicker.value, inputDescription);
 
         createMainList();
         mainBody.removeChild(mainBody.lastChild);
-        addTaskButton.style.display = "block";
+        addTaskButton.style.display = "flex";
     }
 
 }
 
 function addProjectClicked() {
-    let addProjectButton = document.querySelector("#add-project-button");
+    let addProjectButton = document.querySelector(".add-project-button");
     addProjectButton.style.display = "none";
 
     let infoTab = document.querySelector("#info-tab");
 
     let addProjectForm = document.createElement("div");
+    addProjectForm.className = "add-project-form";
 
     let inputText = document.createElement("input");
     inputText.required = true;
@@ -99,11 +102,13 @@ function addProjectClicked() {
     inputText.setAttribute("name", "project-name");
     inputText.setAttribute("type", "text");
 
-    let addButton = document.createElement("button");
-    addButton.innerHTML = "Add";
+    let addButton = new Image();
+    addButton.src = addIcon;
+    addButton.className = "add-button";
 
-    let cancelButton = document.createElement('button');
-    cancelButton.innerHTML = "Cancel";
+    let cancelButton = new Image();
+    cancelButton.src = clearIcon;
+    cancelButton.className = "clear-button";
 
     addProjectForm.appendChild(inputText);
     addProjectForm.appendChild(addButton);
@@ -113,7 +118,7 @@ function addProjectClicked() {
 
     cancelButton.onclick = () => {
         infoTab.removeChild(infoTab.lastChild);
-        addProjectButton.style.display = "block";
+        addProjectButton.style.display = "flex";
     }
 
     addButton.onclick = () => {
@@ -121,14 +126,30 @@ function addProjectClicked() {
         projectList.addProject(inputText.value);
         createCurrentProjects();
         infoTab.removeChild(infoTab.lastChild);
-        addProjectButton.style.display = "block";
+        addProjectButton.style.display = "flex";
+        addProjectListEvent();
     }
 
 }
 
-function changeCurrentProject( index){
-    console.log("chagecurrent");
-    current.setCurrent(index);
+function changeCurrentProject(index) {
+    let currentProject = projectList.getProjectByIndex(index.slice(0,-1));
+
+    let projectButtons = Array.from(document.querySelectorAll(".project"));
+        projectButtons.forEach(element => {
+            element.classList.remove("clicked");
+    });
+    //console.log(index.slice(0,-1));
+    let selectedProject = document.getElementById(index);
+    selectedProject.classList.add("clicked");
+    let homeButton = document.querySelector("#home-button");
+    homeButton.classList.remove("clicked");
+    if (currentProject.returnIsSorted()) {
+        currentProject.unsortArray();
+    }
+
+
+    current.setCurrent(index.slice(0,-1));
     getMainBody();
     addTaskEvent();
 
@@ -142,7 +163,7 @@ function initializeEventHandlers() {
 }
 
 function addProjectEvent() {
-    let addProjectButton = document.querySelector("#add-project-button");
+    let addProjectButton = document.querySelector(".add-project-button");
 
     addProjectButton.addEventListener('click', addProjectClicked);
 
@@ -155,25 +176,49 @@ function addTaskEvent() {
 }
 
 function addOptionsEvent() {
-    let arrayOptions = Array.from(document.querySelectorAll(".info-tab-button"));
+    let homeButton = document.querySelector("#home-button");
 
-    arrayOptions.forEach(element => {
-        element.onclick = () => {
-            current.setCurrent(element.id); 
-            getMainBody();
-            addTaskEvent();
+    homeButton.onclick = () => {
+        current.setCurrent("Home");
+        let projectButtons = Array.from(document.querySelectorAll(".project"));
+        projectButtons.forEach(element => {
+            element.classList.remove("clicked");
+        });
+        homeButton.classList.add("clicked");
+        let currentProject = projectList.getProject("Home");
+        if (currentProject.returnIsSorted()) {
+            currentProject.unsortArray();
         }
-    });
+        getMainBody();
+        addTaskEvent();
+    }
+
+
+    // arrayOptions.forEach(element => {
+    //     element.onclick = () => {
+    //         current.setCurrent(element.id); 
+    //         let currentProject = projectList.getProject("Home");
+    //         if (currentProject.returnIsSorted()){
+    //         currentProject.unsortArray();
+    // }
+    //         getMainBody();
+    //         addTaskEvent();
+    //     }
+    // });
 }
 
 function addProjectListEvent() {
-    let projectList = document.querySelector("#current-projects");
-
-    projectList.addEventListener('click', e => {
-        if (e.target.className == 'project') {
-            changeCurrentProject( e.target.id );
-        }
+    let projectList = Array.from(document.querySelectorAll(".project"));
+    console.log(projectList);
+    projectList.forEach(element => {
+        element.addEventListener('click', e => {
+            console.log(345345);
+            changeCurrentProject(element.id);
+            
+        })
     })
+
     
+
 }
 export { initializeEventHandlers, addTaskEvent };
